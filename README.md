@@ -47,7 +47,7 @@ AICUP会议纪要
 
 结果：
 
-![image-20230210170247285](C:\Users\Zhouyue\AppData\Roaming\Typora\typora-user-images\image-20230210170247285.png)
+图片暂缺
 
 **建华老师建议**：多次测量平均或者利用集合模型
 
