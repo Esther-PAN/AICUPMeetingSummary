@@ -107,3 +107,136 @@ AICUP会议纪要
 几点建议:1. 可以提供相机硬件等配置，学生可以主动随时去验证，也方便项目的进展。
 2. 最终成果描述清楚，规划好，工厂要的是什么，有一个详细的描述: 比如，输入是什么，以什么方式输入，输出结果是什么，以什么方式输出，说出输出的结果有没有一个判断标准。
 3. 建议根据最终成果需求，可以规划一下时间计划。
+
+---
+
+# 20230313会议纪要
+
+## 汇报进度
+
+- [ ] 触点检测
+  - [x] 主要代码 *
+  - [ ] 性能优化
+  - [ ] 其他零件
+- [ ] 位置度计算
+- [ ] 界面交互
+  - [x] 上传与展示
+  - [ ] 其他功能
+- [ ] 软件对接
+  - [ ] API服务器
+  - [ ] 前端调用
+- [ ] 软硬件对接
+
+总结：
+
+- 本项目触点检测代码具有较大创新性，需要研究尝试，基本已经完成；
+- 原界面交互复杂，功能繁多，一比一还原工程量大且并不一定方便使用。
+
+## 算法讨论
+
+模板匹配法步骤：
+
+1. 图像预处理
+
+去掉不必要区域，提高效率，选定模板：面板和角点模板
+
+需要改进的问题：1. 位置信息需要根据每张图片进行变化
+
+1. 检测工件(目标大易于检测)
+2. 检测触电
+3. 非极大值抑制
+
+​		取得分最高的
+
+问题
+
+-  是否可以取前五个的平均，减少误差？
+-  是否存在同一个位置被重复检测的问题？ 现触点模式比较简单，目前不存在重复性问题。
+- ***\*算法时间？\****连接相机取像以及检测的时间需要控制在***\*2s以内\****
+- 结合blob算法，以目前的区域做中心点，筛选亮斑，选定Pin点，再算偏差值
+- 建立坐标系：单模板、多模板、利用边等方法
+- 基准点的确立
+- 确立是产品还是摄像导致亮斑显示问题？
+- 区别正常和异常的图像，用不同方法解决
+
+5.取前108个触电
+
+优化方向：
+
+- 预处理使用直方图均衡化消除光照影响
+- 多模板匹配求最佳匹配（求均值可能不是最优解）
+  - 需要注意模板一致性，触点中心需处于模板图片的同一像素相对位置中
+- 代码效率提升
+- 其他工程功能优化
+  - 封装
+  - 自动输出最差匹配的可能匹配，人工挑选，方便添加为新模板
+
+## 交互讨论
+
+## 讨论结果
+
+交互可简化。
+在模板匹配基础上加上blob算法定位触点。（性能高，但对异常光照，和NG图片，鲁棒性偏低）
+多模板匹配，可通过添加模板提升鲁棒性。
+
+主要进度：交互界面、触点检测算法
+
+待实现：性能优化、软件对接、软硬件对接
+
+需要配合、支持的部分：其他零件的图片，相机和产品、有难度的图像
+
+交互界面进度：已实现上传和展示，其他功能待开发
+
+
+
+---
+
+
+
+
+# 20230331会议纪要
+
+
+1. 认为工件图纸数据主要用于像素数比例计算，为减小误差，推荐用尺度最大的触点矩阵的长宽作为基准，确定各个结构像素数。@唐铭锋 @坐看云起 
+
+   进度：实现了读入工件针脚设计位置的功能，现在可以在yaml文件中输入基准针脚的位置，一共有多少行多少列，间隔为多少厘米，从而得到所有的针脚（不同的工件可以直接修改yaml文件）。同时可以通过调节x和y方向的ppc将计划位置转化到图上。同时实现了针脚坐标和位置度的计算。
+
+   
+
+2. 考虑到现有硬件和需求，我们可能不需要使用太高级的前端技术栈，需要同潘同学简单了解下pyqt，花一小时部署学习，达到能跑demo的水平就行。@潘登烨 
+
+
+
+---
+
+
+
+# proposal
+
+### Introduction 
+
+Building a reliable tip inspection method that can capture point of the contact tip under different circumstances is critical yet underexolored. Tip inspection is a huge workload that must be down by machine as there are hundreds of EON contact on Whisper product, both Header and Rec, which must be 100% inspection before ship to customer. Previous work such as Keyence, PPT, VISCO has some drawbacks for EON tip inspection, when contact brightness various they can not capture the correct position of contact tip. Existing solution is using CTI system which can inspect the contact after loading multiple brightness models, however, due to cost, after-sales service and the uncertainty of international trade, we need to find a better and more workable solutions.
+
+### Requirement
+
+The task is to design a system that can detect abnormal components, the main idea includes three steps. First using existing methods to detect pins and calculate its positions from the given images. Then create a coordinate system with this, and calculating the ideal position of the pins. Finally calculate distance between the two positions and use it as a criterion for judging anomalies.
+
+The task is divided into two parts: hardware and software, which are the responsibility of company team and school team respectively, and we will interface with each other at the end.
+
+Requirements for software system delivered by student team are as follows:
+
+- Implement the detection algorithm logic
+- Friendly GUI interaction
+- Default position degree $\phi=0.2$ (tentatively designed for modifiable  hyperparameters)
+
+### Methods 
+
+Our initial proposal is as follows:
+
+- The most critical issue at present is that contact tilt will change the shape of  image and lighting conditions, resulting in errors in the detection position. So we will focus on the application of experimental light invariance characteristics to mainstream methods, and investigates the effect of pin deformation on detection position.
+- The alternative method is exploring feature matching methods based on ideal position masking features.
+- Design a web and graphical interface to encapsulates above methods, which allows both company and student team to optimize system overall performance through interface tuning.
+
+
+
+
