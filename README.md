@@ -238,5 +238,9 @@ Our initial proposal is as follows:
 - Design a web and graphical interface to encapsulates above methods, which allows both company and student team to optimize system overall performance through interface tuning.
 
 
+# 20230410讨论记录
+主要内容：
+讨论记录：
+
 
 
